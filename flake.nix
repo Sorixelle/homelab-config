@@ -21,9 +21,19 @@
 
   outputs =
     { self, flake-utils, nixpkgs, pre-commit-hooks, sops-nix, ... }@inputs:
-    let genSystems = nixpkgs.lib.genAttrs flake-utils.lib.defaultSystems;
+    let
+      inherit (nixpkgs) lib;
+      genSystems = lib.genAttrs flake-utils.lib.defaultSystems;
     in {
       nixopsConfigurations.default = import ./nixops.nix { inherit inputs; };
+
+      nixosConfigurations = let mkSystem = lib.makeOverridable lib.nixosSystem;
+      in {
+        provisioning-base = mkSystem {
+          system = "x86_64-linux";
+          modules = [ (import ./util/provisioning-base-config.nix) ];
+        };
+      };
 
       devShell = genSystems (s:
         let pkgs = nixpkgs.legacyPackages.${s};

@@ -64,4 +64,6 @@
   opal-entrypoint = import ./machines/opal-entrypoint.nix;
   # opal-media-server - Media server running Jellyfin
   opal-media-server = import ./machines/opal-media-server.nix;
+  # topaz - An old laptop of mine, but it has a GPU which is nice
+  topaz = import ./machines/topaz.nix;
 }

@@ -20,6 +20,15 @@
     # I'm the owner :)
     deployment.owners = [ "ruby@srxl.me" ];
 
+    # Setup mount for root filesystem
+    fileSystems."/" = {
+      device = "/dev/disk/by-label/NixOS";
+      fsType = "ext4";
+    };
+
+    # Setup swap partition
+    swapDevices = [{ device = "/dev/disk/by-label/Swap"; }];
+
     # Use a flake-enabled Nix
     nix = {
       package = pkgs.nixUnstable;

@@ -24,13 +24,6 @@ in { config, lib, nodes, modulesPath, ... }: {
     };
   };
 
-  # Setup filesystems and mounts
-  fileSystems."/" = {
-    device = "/dev/disk/by-label/NixOS";
-    fsType = "ext4";
-  };
-  swapDevices = [{ device = "/dev/disk/by-label/Swap"; }];
-
   # Enable QEMU guest agent
   services.qemuGuest.enable = true;
 

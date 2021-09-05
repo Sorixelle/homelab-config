@@ -27,13 +27,6 @@ in { config, nodes, modulesPath, ... }: {
     kernel.sysctl."net.ipv4.ip_forward" = 1;
   };
 
-  # Setup filesystems and mounts
-  fileSystems."/" = {
-    device = "/dev/disk/by-label/NixOS";
-    fsType = "ext4";
-  };
-  swapDevices = [{ device = "/dev/disk/by-label/Swap"; }];
-
   networking = {
     # Set hostname
     hostName = "gemstonelabs-gateway";

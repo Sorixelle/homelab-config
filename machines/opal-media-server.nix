@@ -12,6 +12,9 @@
     device = "/dev/sda";
   };
 
+  # Enable QEMU guest agent
+  services.qemuGuest.enable = true;
+
   networking = {
     # Set hostname
     hostName = "media";

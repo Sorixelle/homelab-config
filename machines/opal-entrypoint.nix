@@ -34,6 +34,9 @@ in { config, lib, nodes, modulesPath, ... }: {
     # Use DHCP for internet interface
     interfaces.ens18.useDHCP = true;
 
+    # Don't use the local resolver - we'll get it from DHCP anyway
+    resolvconf.useLocalResolver = false;
+
     # Setup a Wireguard interface
     wg-quick.interfaces.wg0 = {
       # Address of wg0 on client
@@ -56,8 +59,12 @@ in { config, lib, nodes, modulesPath, ... }: {
       }];
     };
 
-    # Allow incoming traffic to both regular and PROXY protocol routes
-    firewall.allowedTCPPorts = [ 80 443 800 4430 ];
+    firewall = {
+      # Allow incoming traffic to both regular and PROXY protocol routes
+      allowedTCPPorts = [ 80 443 800 4430 ];
+      # Allow incoming DNS traffic
+      allowedUDPPorts = [ 53 ];
+    };
   };
 
   # Configures Nginx services
@@ -132,6 +139,35 @@ in { config, lib, nodes, modulesPath, ... }: {
         proxy_pass ${wireguardIP}:4430;
       }
     '';
+  };
+
+  # Configure BIND for local DNS
+  services.bind = {
+    enable = true;
+    # Only listen on the home network-local address
+    listenOn = [ publicIP ];
+    # Allow requests from home network only
+    cacheNetworks = [
+      "192.168.0.0/24" # Wider LAN
+      "192.168.1.0/24" # Gemstone Labs LAN
+    ];
+
+    # Records for gemstonelabs.cloud
+    # Not declarative, unfortunately - gets a bit tricky with the whole serial
+    # thing in the SOA record. They're on these locations on the server - just
+    # trust me bro.
+    zones = {
+      # Normal records
+      "gemstonelabs.cloud" = {
+        master = true;
+        file = "/etc/bind/gemstonelabs.zone";
+      };
+      # Reverse lookup records
+      "1.168.192.in-addr.arpa" = {
+        master = true;
+        file = "/etc/bind/gemstonelabs-reverse.zone";
+      };
+    };
   };
 
   system.stateVersion = "21.05";

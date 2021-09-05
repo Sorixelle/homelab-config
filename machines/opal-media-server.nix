@@ -14,7 +14,7 @@
 
   networking = {
     # Set hostname
-    hostName = "opal-media-server";
+    hostName = "media";
 
     # Use DHCP for internet interface
     interfaces.ens18.useDHCP = true;

@@ -23,7 +23,7 @@ in { config, lib, nodes, ... }: {
 
   networking = {
     # Set hostname
-    hostName = "opal-entrypoint";
+    hostName = "entrypoint";
 
     # Use DHCP for internet interface
     interfaces.ens18.useDHCP = true;

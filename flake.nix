@@ -53,7 +53,7 @@
             vim
           ];
 
-          EDITOR = pkgs.vim;
+          EDITOR = "vim";
           shellHook = ''
             ${self.checks.${s}.pre-commit-check.shellHook}
           '';

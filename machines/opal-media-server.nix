@@ -1,16 +1,29 @@
-{ config, ... }:
+{ config, modulesPath, ... }:
 
 {
-  imports = [ ./hardware/opal-media-server.nix ];
+  imports = [ (modulesPath + "/profiles/qemu-guest.nix") ];
 
   # Set deployment IP
   deployment.targetHost = "192.168.1.10";
 
-  # Configure GRUB for booting
-  boot.loader.grub = {
-    enable = true;
-    device = "/dev/sda";
+  boot = {
+    # Set avaliable kernel modules
+    initrd.availableKernelModules =
+      [ "ata_piix" "uhci_hcd" "virtio_pci" "virtio_scsi" "sd_mod" "sr_mod" ];
+
+    # Configure GRUB for booting
+    loader.grub = {
+      enable = true;
+      device = "/dev/sda";
+    };
   };
+
+  # Setup filesystems and mounts
+  fileSystems."/" = {
+    device = "/dev/disk/by-label/NixOS";
+    fsType = "ext4";
+  };
+  swapDevices = [{ device = "/dev/disk/by-label/Swap"; }];
 
   # Enable QEMU guest agent
   services.qemuGuest.enable = true;

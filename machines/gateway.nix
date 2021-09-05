@@ -1,6 +1,6 @@
 let publicIP = "170.75.170.152";
-in { config, nodes, ... }: {
-  imports = [ ./hardware/gateway.nix ];
+in { config, nodes, modulesPath, ... }: {
+  imports = [ (modulesPath + "/profiles/qemu-guest.nix") ];
 
   # Set deployment IP
   deployment.targetHost = publicIP;
@@ -11,14 +11,28 @@ in { config, nodes, ... }: {
     secrets.wg_server_privkey = { };
   };
 
-  # Configure GRUB for booting
-  boot.loader.grub = {
-    enable = true;
-    device = "/dev/vda";
+  boot = {
+    # Set avaliable kernel modules
+    initrd.availableKernelModules =
+      [ "ata_piix" "uhci_hcd" "virtio_pci" "sr_mod" "virtio_blk" ];
+    kernelModules = [ "kvm-intel" ];
+
+    # Configure GRUB for booting
+    loader.grub = {
+      enable = true;
+      device = "/dev/vda";
+    };
+
+    # Enable IP forwarding
+    kernel.sysctl."net.ipv4.ip_forward" = 1;
   };
 
-  # Enable IP forwarding
-  boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
+  # Setup filesystems and mounts
+  fileSystems."/" = {
+    device = "/dev/disk/by-label/NixOS";
+    fsType = "ext4";
+  };
+  swapDevices = [{ device = "/dev/disk/by-label/Swap"; }];
 
   networking = {
     # Set hostname
